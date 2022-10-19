@@ -1,0 +1,126 @@
+<link href='https://cdn.osmbuildings.org/4.1.1/OSMBuildings.css' rel='stylesheet'>
+<!-- <script src="https://cdn.osmbuildings.org/4.1.1/OSMBuildings.js"></script> -->
+<script src="OSMBuildings.js"></script>
+
+<style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background-color: black;
+    }
+
+    #map {
+      width: 800px;
+      height:800px;
+    }
+
+    .control {
+      position: absolute;
+      left: 0;
+      z-index: 1000;
+    }
+
+    .control.tilt {
+      top: 0;
+    }
+
+    .control.rotation {
+      top: 45px;
+    }
+
+    .control.zoom {
+      top: 90px;
+    }
+
+    .control.zoom button{
+      font-weight: normal;
+    }
+
+    .control button {
+      width: 30px;
+      height: 30px;
+      margin: 15px 0 0 15px;
+      border: 1px solid #999999;
+      background: #ffffff;
+      opacity: 0.6;
+      border-radius: 5px;
+      box-shadow: 0 0 5px #666666;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .control button:hover {
+      opacity: 1;
+      cursor: pointer;
+    }
+
+</style>
+
+<div id="map"></div>
+
+<script>
+var map = new OSMBuildings({
+  container: 'map',
+  position: { latitude: 49.49449366786876, longitude:  8.467502220144059 },
+  zoom: 16,
+  minZoom: 15,
+  maxZoom: 20,
+  tilt: 40,
+  fastMode: true,
+  backgroundColor: '#000000',
+  // rotation: 300,
+  effects: ['shadows'],
+  // attribution: '© Data <a href="https://openstreetmap.org/copyright/">OpenStreetMap</a> © Map <a href="https://mapbox.com/">Mapbox</a> © 3D <a href="https://osmbuildings.org/copyright/">OSM Buildings</a>'
+  attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attributions">CARTO</a>'
+});
+
+map.addMapTiles('http://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png');
+//map.addMapTiles('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+//map.addMapTiles('https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZWtpbmNpb2dsdSIsImEiOiJjbDMxZG51NzgxeW1zM2NtcHM5cTZlZnFqIn0.dpAGB5f5a5sHntBPIiuaUg');
+map.addGeoJSONTiles('https://{s}.data.osmbuildings.org/0.2/dixw8kmb/tile/{z}/{x}/{y}.json');
+// https://tile.nextzen.org/tilezen/vector/v1/all/{z}/{x}/{y}.topojson?api_key=Ga4XeJL3RLC9O6ncF7uCcA
+// https://{s}.data.osmbuildings.org/0.2/dixw8kmb/tile/{z}/{x}/{y}.json
+
+let rotation = 0;
+let zoomNG = 16;
+function rotate () {
+  map.setRotation(rotation);
+  map.setZoom(zoomNG);
+  rotation = (rotation+0.05) % 360;
+  if( zoomNG >= 17.0){zoomNG = 17.0 } else { zoomNG = (zoomNG+0.001) % 360; }
+
+  requestAnimationFrame(rotate);
+}
+
+
+  // https://osmbuildings.github.io/OSMBuildings/tutorial-Highlighting%20Buildings.html
+  // on pointer up
+  map.on('pointerup', e => {
+    // if none, remove any previous selection and return
+    if (!e.features) {
+      map.highlight(feature => {})
+    }
+
+/*map.highlight(feature => { 
+	return '#000000';
+});*/
+
+    // store id's from seleted items...
+    const featureIDList = e.features.map(feature => feature.id);
+
+    // ...then is is faster: set highlight color for matching features
+    map.highlight(feature => {
+      if (featureIDList.indexOf(feature.id) > -1) {
+        return '#90ee90';
+      }
+    });
+  });
+
+  
+// map.addOBJ(`${location.protocol}//${location.hostname}/${location.pathname}/assets/Blank.obj`, { latitude: 52.519991, longitude: 13.406453 }, { id: "my_object_1", color: 'red'});
+
+// rotate();
+
+</script>
